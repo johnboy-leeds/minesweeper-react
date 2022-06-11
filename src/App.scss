@@ -1,0 +1,128 @@
+$border-light: #fff;
+$border-dark: #808080;
+$container-padding: 8px;
+$border-width: 6px;
+$border-width: 6px;
+
+%border-emboss {
+  border-top: solid $border-width $border-light;
+  border-left: solid $border-width $border-light;
+  border-bottom: solid $border-width $border-dark;
+  border-right: solid $border-width $border-dark;
+}
+
+%border-inset {
+  border-top: inset $border-width $border-dark;
+  border-left: inset $border-width $border-dark;
+  border-bottom: inset $border-width $border-light;
+  border-right: inset $border-width $border-light;
+}
+
+body {
+  background: #808080;
+  padding: 12px;
+}
+
+.c-game-container {
+  @extend %border-emboss;
+  background: #f2f2f2;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: $container-padding;
+  width: 100vw;
+}
+
+.c-grid {
+  @extend %border-inset;
+  display: grid;
+}
+
+.c-status-bar {
+  display: flex;
+  font-size: 32px;
+  justify-content: space-between;
+  margin-bottom: $container-padding;
+  padding: 8px;
+  @extend %border-inset;
+
+  &__status {
+    @extend %border-emboss;
+
+    padding: 4px;
+  }
+
+  &__timer,
+  &__unmarked-mines {
+    background: black;
+    color: red;
+    padding: 4px 12px;
+  }
+}
+
+.c-grid-square {
+  aspect-ratio: 1;
+  border: 1px solid #cecece;
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  justify-content: center;
+  text-align: center;
+
+  -webkit-touch-callout: none; /* Safari */
+  -webkit-user-select: none; /* Chrome */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none;
+
+  &.c-grid-square--covered,
+  &.c-grid-square--flagged,
+  &.c-grid-square--flagged-erroneously {
+    @extend %border-emboss;
+  }
+
+  &--exploded {
+    background: red;
+  }
+
+  &--flagged-erroneously {
+    position: relative;
+    &::before {
+      position: absolute;
+      content: "";
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0) 49%,
+        red 49%,
+        red 51%,
+        rgba(0, 0, 0, 0) 51%,
+        rgba(0, 0, 0, 0) 100%
+      );
+    }
+  }
+  background: #f2f2f2;
+  min-height: 24px;
+
+  &[data-neighbour-count="1"] {
+    color: blue;
+  }
+  &[data-neighbour-count="2"] {
+    color: green;
+  }
+  &[data-neighbour-count="3"] {
+    color: red;
+  }
+  &[data-neighbour-count="4"] {
+    color: darkblue;
+  }
+  &[data-neighbour-count="5"] {
+    color: darkred;
+  }
+  &[data-neighbour-count="6"] {
+    color: lightblue;
+  }
+}
