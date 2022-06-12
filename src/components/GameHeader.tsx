@@ -36,12 +36,12 @@ const GameHeader: React.FC<Props> = ({
   };
 
   return (
-    <div className="c-status-bar">
-      <div className="c-status-bar__timer">{formatNumber(timeElapsed)}</div>
-      <div className="c-status-bar__status" onClick={onReset}>
+    <div className="c-game-header">
+      <div className="c-game-header__timer">{formatNumber(timeElapsed)}</div>
+      <div className="c-game-header__status" onClick={onReset}>
         {getStatusEmoji(status)}
       </div>
-      <div className="c-status-bar__unmarked-mines">
+      <div className="c-game-header__unmarked-mines">
         {formatNumber(unmarkedMineCount)}
       </div>
     </div>

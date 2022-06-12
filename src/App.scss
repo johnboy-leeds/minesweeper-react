@@ -4,6 +4,8 @@ $container-padding: 8px;
 $border-width: 6px;
 $border-width: 6px;
 
+$body-padding: 12px;
+
 %border-emboss {
   border-top: solid $border-width $border-light;
   border-left: solid $border-width $border-light;
@@ -20,7 +22,7 @@ $border-width: 6px;
 
 body {
   background: #808080;
-  padding: 12px;
+  padding: $body-padding;
 }
 
 button {
@@ -30,10 +32,11 @@ button {
 .c-game-container {
   @extend %border-emboss;
   background: #f2f2f2;
+  box-sizing: border-box;
   max-width: 600px;
   margin: 0 auto;
   padding: $container-padding;
-  width: 100vw;
+  width: calc(100vw - $body-padding - $body-padding);
 }
 
 .c-grid {
@@ -49,6 +52,7 @@ button {
   padding: 8px;
 
   &__instruction {
+    font-size: 0.8rem;
     &:first-letter {
       text-transform: capitalize;
     }
@@ -67,7 +71,7 @@ button {
   }
 }
 
-.c-status-bar {
+.c-game-header {
   display: flex;
   font-size: 32px;
   justify-content: space-between;
@@ -161,6 +165,9 @@ button {
   list-style: none;
   padding: 0;
 
+  &__header {
+    text-align: center;
+  }
   &__item {
     margin: 12px 0;
   }

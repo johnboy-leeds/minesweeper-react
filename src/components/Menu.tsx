@@ -9,7 +9,7 @@ interface Props {
 const Menu: React.FC<Props> = ({ onSelectDifficulty }) => {
   return (
     <div className="c-game-container">
-      <h1>Choose difficulty</h1>
+      <h1 className="c-difficulty-select__header">Choose difficulty</h1>
       <ul className="c-difficulty-select">
         {difficulties.map((difficulty: Difficulty) => (
           <li key={difficulty.label} className="c-difficulty-select__item">
