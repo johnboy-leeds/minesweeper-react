@@ -27,6 +27,7 @@ const GridCell: React.FC<Props> = ({ gameStatus, onFlag, onUncover, cell }) => {
       }
       onClick={handleClick}
       onContextMenu={handleClick}
+      role="button"
     >
       {getCellContent(cell, gameStatus)}
     </div>

@@ -36,6 +36,7 @@ $palm-break-point: $container-max-width + $body-padding + $body-padding;
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none;
 }
+
 body {
   background: #1e4526;
   box-sizing: border-box;
