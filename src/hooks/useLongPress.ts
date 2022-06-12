@@ -25,12 +25,15 @@ const useLongPress = (
 
   const start = useCallback(
     (event: TouchEvent) => {
-      if (event.target) {
-        event.target.addEventListener("touchend", preventDefault, {
-          passive: false,
-        });
-        target.current = event.target;
+      if (timeout.current || !event.target) {
+        return;
       }
+
+      event.target.addEventListener("touchend", preventDefault, {
+        passive: false,
+      });
+      target.current = event.target;
+
       timeout.current = setTimeout(() => {
         onLongPress();
         setLongPressTriggered(true);
@@ -52,6 +55,8 @@ const useLongPress = (
       if (target.current) {
         target.current.removeEventListener("touchend", preventDefault);
       }
+
+      startPosition.current = undefined;
     },
     [onTap, longPressTriggered]
   );

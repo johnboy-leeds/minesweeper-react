@@ -52,7 +52,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
   }, [difficulty, resetGame]);
 
   const handleFlagSquare = (x: number, y: number) => {
-    if (isGameOver(gameStatus)) {
+    if (gameStatus !== GameStatus.IN_PLAY) {
       return;
     }
     const updatedGrid = toggleCellFlag(gameGrid, x, y);
