@@ -15,7 +15,7 @@ export const getInstruction = (gameStatus: GameStatus) => {
   }
 
   if (gameStatus === GameStatus.LOST) {
-    instruction = `You lost! ${unconverAction} the face to start a new game`;
+    instruction = `You lost! ${unconverAction} the skull to start a new game`;
   }
 
   return instruction;

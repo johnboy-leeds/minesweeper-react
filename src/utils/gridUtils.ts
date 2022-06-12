@@ -3,12 +3,12 @@ import { Cell, GameStatus, Grid, Row } from "../interfaces";
 export const isGameOver = (gameStatus: GameStatus): boolean =>
   gameStatus === GameStatus.LOST || gameStatus === GameStatus.WON;
 
-export const countCoveredEmptySquares = (grid: Grid): number =>
+export const countCoveredEmptyCells = (grid: Grid): number =>
   grid.reduce((count: number, row: Row) => {
     return (
       count +
-      row.reduce((rowCount: number, square: Cell) => {
-        if (square.uncovered || square.hasMine) {
+      row.reduce((rowCount: number, cell: Cell) => {
+        if (cell.uncovered || cell.hasMine) {
           return rowCount;
         }
 

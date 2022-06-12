@@ -38,9 +38,9 @@ const GameHeader: React.FC<Props> = ({
   return (
     <div className="c-game-header">
       <div className="c-game-header__timer">{formatNumber(timeElapsed)}</div>
-      <div className="c-game-header__status" onClick={onReset}>
+      <button className="c-game-header__status" onClick={onReset}>
         {getStatusEmoji(status)}
-      </div>
+      </button>
       <div className="c-game-header__unmarked-mines">
         {formatNumber(unmarkedMineCount)}
       </div>

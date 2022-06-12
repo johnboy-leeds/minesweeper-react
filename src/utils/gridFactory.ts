@@ -14,10 +14,10 @@ export const gridFactory = (
   const grid: Grid = [];
 
   for (let row = 0; row < rows; row++) {
-    const rowSquares: Row = [];
+    const rowCells: Row = [];
 
     for (let col = 0; col < columns; col++) {
-      rowSquares.push({
+      rowCells.push({
         neighbouringMineCount: 0,
         hasMine: false,
         uncovered: false,
@@ -25,7 +25,7 @@ export const gridFactory = (
       });
     }
 
-    grid.push(rowSquares);
+    grid.push(rowCells);
   }
 
   return addNeighbouringMineCount(addMines(grid, mines, firstClick));
@@ -43,10 +43,10 @@ const addMines = (
   }
 
   const columns = grid[0].length;
-  const squareCount = rows * columns;
-  if (squareCount <= minesToPlace) {
+  const cellCount = rows * columns;
+  if (cellCount <= minesToPlace) {
     throw new Error(
-      `Not enough space to fit all mines. Total Squares: ${squareCount} Mines Requested: ${minesToPlace}`
+      `Not enough space to fit all mines. Total cells: ${cellCount} Mines Requested: ${minesToPlace}`
     );
   }
 
@@ -75,8 +75,8 @@ const addNeighbouringMineCount = (grid: Grid): Grid => {
   for (let y = 0; y < grid.length; y++) {
     const row = clonedGrid[y];
     for (let x = 0; x < row.length; x++) {
-      const squareToCount = row[x];
-      squareToCount.neighbouringMineCount = getNeighbouringMineCount(
+      const cellToCount = row[x];
+      cellToCount.neighbouringMineCount = getNeighbouringMineCount(
         clonedGrid,
         x,
         y

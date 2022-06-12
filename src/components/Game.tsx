@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { GameStatus, Cell, Difficulty } from "../interfaces";
 import {
-  countCoveredEmptySquares,
+  countCoveredEmptyCells,
   gridFactory,
   isGameOver,
   toggleCellFlag,
-  uncoverSquare,
+  uncoverCell,
 } from "../utils";
 import { useTimer } from "use-timer";
 import GameGrid from "./GameGrid";
@@ -51,7 +51,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
     resetGame();
   }, [difficulty, resetGame]);
 
-  const handleFlagSquare = (x: number, y: number) => {
+  const handleFlagCell = (x: number, y: number) => {
     if (gameStatus !== GameStatus.IN_PLAY) {
       return;
     }
@@ -74,7 +74,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
     resetGame();
   };
 
-  const handleUncoverSquare = (x: number, y: number) => {
+  const handleUncoverCell = (x: number, y: number) => {
     if (isGameOver(gameStatus)) {
       return;
     }
@@ -89,13 +89,13 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
       console.log("Game started");
     }
 
-    const { updatedGrid, hadMine } = uncoverSquare(grid, x, y);
+    const { updatedGrid, hadMine } = uncoverCell(grid, x, y);
 
     if (hadMine) {
       setGameStatus(GameStatus.LOST);
       pauseTimer();
       vibrate(VIBRATION_TYPES.LOSE);
-    } else if (countCoveredEmptySquares(updatedGrid) === 0) {
+    } else if (countCoveredEmptyCells(updatedGrid) === 0) {
       setGameStatus(GameStatus.WON);
       pauseTimer();
       vibrate(VIBRATION_TYPES.WIN);
@@ -106,8 +106,23 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
     updateGameGrid(updatedGrid);
   };
 
+  const handleChangeDifficulty = () => {
+    if (
+      gameStatus === GameStatus.IN_PLAY &&
+      !window.confirm(
+        "Are you sure you want to change difficulty, current progress will be lost"
+      )
+    ) {
+      return;
+    }
+
+    onChangeDifficulty();
+  };
+
   return (
-    <div className="c-game-container">
+    <div
+      className={`c-game-container  c-game-container--${difficulty.label.toLowerCase()}`}
+    >
       <GameHeader
         onReset={handleReset}
         status={gameStatus}
@@ -116,14 +131,14 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
       />
       <GameGrid
         gameStatus={gameStatus}
-        onUncoverSquare={handleUncoverSquare}
-        onFlagSquare={handleFlagSquare}
+        onUncoverCell={handleUncoverCell}
+        onFlagCell={handleFlagCell}
         gameGrid={gameGrid}
       />
       <GameFooter
         gameStatus={gameStatus}
         difficulty={difficulty}
-        onChangeDifficulty={onChangeDifficulty}
+        onChangeDifficulty={handleChangeDifficulty}
       />
     </div>
   );

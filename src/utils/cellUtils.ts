@@ -1,4 +1,4 @@
-import { Cell, GameStatus, SquareStatus, Grid } from "../interfaces";
+import { Cell, GameStatus, CellStatus, Grid } from "../interfaces";
 import { traverseNeighbouringCells } from "./gridUtils";
 
 export const getCellContent = (cell: Cell, gameStatus: GameStatus): string => {
@@ -16,51 +16,49 @@ export const getCellContent = (cell: Cell, gameStatus: GameStatus): string => {
   }
 
   if (!uncovered) {
-    return "";
+    return " ";
   }
 
-  return neighbouringMineCount ? `${neighbouringMineCount}` : "";
+  return neighbouringMineCount ? `${neighbouringMineCount}` : " ";
 };
 
-export const getSquareStatus = (
-  square: Cell,
+export const getCellStatus = (
+  cell: Cell,
   gameStatus: GameStatus
-): SquareStatus => {
+): CellStatus => {
   if (gameStatus === GameStatus.LOST) {
-    if (square.isFlagged) {
-      return square.hasMine
-        ? SquareStatus.FLAGGED
-        : SquareStatus.FLAGGED_ERRONEOUSLY;
+    if (cell.isFlagged) {
+      return cell.hasMine ? CellStatus.FLAGGED : CellStatus.FLAGGED_ERRONEOUSLY;
     }
 
-    if (square.hasMine) {
-      return square.uncovered ? SquareStatus.EXPLODED : SquareStatus.UNCOVERED;
+    if (cell.hasMine) {
+      return cell.uncovered ? CellStatus.EXPLODED : CellStatus.UNCOVERED;
     }
 
-    return square.uncovered ? SquareStatus.UNCOVERED : SquareStatus.COVERED;
+    return cell.uncovered ? CellStatus.UNCOVERED : CellStatus.COVERED;
   }
 
   if (gameStatus === GameStatus.WON) {
-    return square.hasMine ? SquareStatus.FLAGGED : SquareStatus.UNCOVERED;
+    return cell.hasMine ? CellStatus.FLAGGED : CellStatus.UNCOVERED;
   }
 
-  if (square.isFlagged) {
-    return SquareStatus.FLAGGED;
+  if (cell.isFlagged) {
+    return CellStatus.FLAGGED;
   }
 
-  return square.uncovered ? SquareStatus.UNCOVERED : SquareStatus.COVERED;
+  return cell.uncovered ? CellStatus.UNCOVERED : CellStatus.COVERED;
 };
 
-interface uncoverSquareReturn {
+interface uncoverCellReturn {
   hadMine: boolean;
   updatedGrid: Grid;
 }
 
-export const uncoverSquare = (
+export const uncoverCell = (
   grid: Grid,
   x: number,
   y: number
-): uncoverSquareReturn => {
+): uncoverCellReturn => {
   const { isFlagged } = grid[y][x];
   if (isFlagged) {
     return { hadMine: false, updatedGrid: grid };
@@ -69,7 +67,7 @@ export const uncoverSquare = (
   updatedGrid[y][x] = { ...updatedGrid[y][x], uncovered: true };
 
   if (updatedGrid[y][x].neighbouringMineCount === 0) {
-    updatedGrid = uncoverNeighbouringSquares(updatedGrid, x, y);
+    updatedGrid = uncoverNeighbouringCells(updatedGrid, x, y);
   }
 
   return {
@@ -78,7 +76,7 @@ export const uncoverSquare = (
   };
 };
 
-const uncoverNeighbouringSquares = (grid: Grid, x: number, y: number): Grid => {
+const uncoverNeighbouringCells = (grid: Grid, x: number, y: number): Grid => {
   let updatedGrid = JSON.parse(JSON.stringify(grid));
 
   traverseNeighbouringCells(grid, x, y, (cellX, cellY) => {
@@ -86,7 +84,7 @@ const uncoverNeighbouringSquares = (grid: Grid, x: number, y: number): Grid => {
       // Skip cells that are already uncovered
       return;
     }
-    ({ updatedGrid } = uncoverSquare(updatedGrid, cellX, cellY));
+    ({ updatedGrid } = uncoverCell(updatedGrid, cellX, cellY));
   });
 
   return updatedGrid;

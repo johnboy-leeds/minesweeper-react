@@ -8,21 +8,15 @@ export const difficulties: Difficulty[] = [
     mines: 4,
   },
   {
-    label: "Intermediate",
-    rows: 8,
-    columns: 5,
-    mines: 6,
-  },
-  {
-    label: "Advanced",
-    rows: 12,
+    label: "Medium",
+    rows: 10,
     columns: 8,
-    mines: 36,
+    mines: 12,
   },
   {
-    label: "Expert",
-    rows: 16,
+    label: "Hard",
+    rows: 14,
     columns: 12,
-    mines: 76,
+    mines: 36,
   },
 ];

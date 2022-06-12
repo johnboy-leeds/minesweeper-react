@@ -1,7 +1,6 @@
 import React from "react";
-import { useLongPress } from "../hooks";
 import { Cell, GameStatus } from "../interfaces";
-import { getCellContent, getSquareStatus } from "../utils";
+import { getCellContent, getCellStatus } from "../utils";
 
 interface Props {
   gameStatus: GameStatus;
@@ -11,29 +10,23 @@ interface Props {
 }
 
 const GridCell: React.FC<Props> = ({ gameStatus, onFlag, onUncover, cell }) => {
-  const handleClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    if (e.type === "click") {
+  const handleClick: React.MouseEventHandler<HTMLDivElement> = (event) => {
+    event.preventDefault();
+    if (event.type === "click") {
       onUncover();
-    } else if (e.type === "contextmenu") {
-      e.preventDefault();
+    } else if (event.type === "contextmenu") {
       onFlag();
     }
   };
 
-  const onLongPress = useLongPress(onFlag, onUncover);
-
   return (
     <div
-      className={`c-grid-square c-grid-square--${getSquareStatus(
-        cell,
-        gameStatus
-      )}`}
+      className={`c-grid-cell c-grid-cell--${getCellStatus(cell, gameStatus)}`}
       data-neighbour-count={
         cell.uncovered ? cell.neighbouringMineCount : undefined
       }
       onClick={handleClick}
       onContextMenu={handleClick}
-      {...onLongPress}
     >
       {getCellContent(cell, gameStatus)}
     </div>

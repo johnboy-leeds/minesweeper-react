@@ -4,14 +4,14 @@ import GridCell from "./GridCell";
 interface Props {
   gameStatus: GameStatus;
   gameGrid: Grid;
-  onUncoverSquare(x: number, y: number): void;
-  onFlagSquare(x: number, y: number): void;
+  onUncoverCell(x: number, y: number): void;
+  onFlagCell(x: number, y: number): void;
 }
 
 const GameGrid: React.FC<Props> = ({
   gameStatus,
-  onFlagSquare,
-  onUncoverSquare,
+  onFlagCell,
+  onUncoverCell,
   gameGrid: grid,
 }) => {
   if (!grid.length) {
@@ -24,10 +24,13 @@ const GameGrid: React.FC<Props> = ({
   return (
     <div
       className={`c-grid`}
-      style={{
-        gridTemplateColumns: `repeat(${cols}, 1fr)`,
-        gridTemplateRows: `repeat(${rows}, 1fr)`,
-      }}
+      style={
+        {
+          gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gridTemplateRows: `repeat(${rows}, 1fr)`,
+          "--cols": `${cols}`,
+        } as React.CSSProperties
+      }
     >
       {grid.map((row: Row, y) =>
         row.map((cell: Cell, x) => (
@@ -35,8 +38,8 @@ const GameGrid: React.FC<Props> = ({
             key={`${y}-${x}`}
             gameStatus={gameStatus}
             cell={cell}
-            onUncover={() => onUncoverSquare(x, y)}
-            onFlag={() => onFlagSquare(x, y)}
+            onUncover={() => onUncoverCell(x, y)}
+            onFlag={() => onFlagCell(x, y)}
           />
         ))
       )}

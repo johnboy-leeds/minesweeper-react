@@ -8,7 +8,7 @@ export interface Cell {
 export type Row = Cell[];
 export type Grid = Row[];
 
-export enum SquareStatus {
+export enum CellStatus {
   EXPLODED = "exploded",
   FLAGGED = "flagged",
   FLAGGED_ERRONEOUSLY = "flagged-erroneously",
