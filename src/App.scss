@@ -23,6 +23,10 @@ body {
   padding: 12px;
 }
 
+button {
+  cursor: pointer;
+}
+
 .c-game-container {
   @extend %border-emboss;
   background: #f2f2f2;
@@ -39,11 +43,21 @@ body {
 
 .c-game-footer {
   @extend %border-inset;
+  display: flex;
+  justify-content: space-between;
   margin-top: $container-padding;
   padding: 8px;
 
+  &__instruction {
+    &:first-letter {
+      text-transform: capitalize;
+    }
+  }
+
   &__difficulty {
     font-weight: bold;
+    display: block;
+    text-align: right;
   }
 
   &__change-difficulty {

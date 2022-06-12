@@ -1,7 +1,15 @@
 import { Difficulty, Grid, Row } from "../interfaces";
 import { traverseNeighbouringCells } from "./gridUtils";
 
-export const gridFactory = (difficulty: Difficulty): Grid => {
+interface GridCoords {
+  x: number;
+  y: number;
+}
+
+export const gridFactory = (
+  difficulty: Difficulty,
+  firstClick?: GridCoords
+): Grid => {
   const { rows, columns, mines } = difficulty;
   const grid: Grid = [];
 
@@ -20,10 +28,14 @@ export const gridFactory = (difficulty: Difficulty): Grid => {
     grid.push(rowSquares);
   }
 
-  return addNeighbouringMineCount(addMines(grid, mines));
+  return addNeighbouringMineCount(addMines(grid, mines, firstClick));
 };
 
-const addMines = (grid: Grid, minesToPlace: number): Grid => {
+const addMines = (
+  grid: Grid,
+  minesToPlace: number,
+  firstClick?: GridCoords
+): Grid => {
   const clonedGrid = JSON.parse(JSON.stringify(grid));
   const rows = grid.length;
   if (rows === 0) {
@@ -32,7 +44,7 @@ const addMines = (grid: Grid, minesToPlace: number): Grid => {
 
   const columns = grid[0].length;
   const squareCount = rows * columns;
-  if (squareCount < minesToPlace) {
+  if (squareCount <= minesToPlace) {
     throw new Error(
       `Not enough space to fit all mines. Total Squares: ${squareCount} Mines Requested: ${minesToPlace}`
     );
@@ -43,7 +55,10 @@ const addMines = (grid: Grid, minesToPlace: number): Grid => {
     const x = Math.floor(Math.random() * columns);
     const y = Math.floor(Math.random() * rows);
     const target = clonedGrid[y][x];
-    if (target.hasMine) {
+    const matchesFirstClick =
+      firstClick && firstClick.x === x && firstClick.y === y;
+
+    if (target.hasMine || matchesFirstClick) {
       continue;
     }
 

@@ -36,7 +36,13 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
     pauseTimer();
     resetTimer();
     setGameStatus(GameStatus.NOT_STARTED);
-    updateGameGrid(gridFactory(difficulty));
+    // Game starts with no mines, we add them at the first click;
+    updateGameGrid(
+      gridFactory({
+        ...difficulty,
+        mines: 0,
+      })
+    );
     updateUnmarkedMineCount(difficulty.mines);
   }, [difficulty, pauseTimer, resetTimer]);
 
@@ -71,13 +77,17 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
       return;
     }
 
+    let grid = gameGrid;
     if (gameStatus === GameStatus.NOT_STARTED) {
+      // Add the mines avoiding the cell that was first clicked.
+      // this prevents the user losing on their first go which is not fun.
+      grid = gridFactory(difficulty, { x, y });
       setGameStatus(GameStatus.IN_PLAY);
       startTimer();
       console.log("Game started");
     }
 
-    const { updatedGrid, hadMine } = uncoverSquare(gameGrid, x, y);
+    const { updatedGrid, hadMine } = uncoverSquare(grid, x, y);
 
     if (hadMine) {
       setGameStatus(GameStatus.LOST);
@@ -105,6 +115,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
         gameGrid={gameGrid}
       />
       <GameFooter
+        gameStatus={gameStatus}
         difficulty={difficulty}
         onChangeDifficulty={onChangeDifficulty}
       />
