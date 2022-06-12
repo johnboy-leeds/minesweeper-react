@@ -11,6 +11,7 @@ import { useTimer } from "use-timer";
 import GameGrid from "./GameGrid";
 import GameHeader from "./GameHeader";
 import GameFooter from "./GameFooter";
+import { vibrate, VIBRATION_TYPE } from "../utils/device";
 
 interface Props {
   difficulty: Difficulty;
@@ -59,6 +60,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
     updateUnmarkedMineCount(
       unmarkedMineCount - (updatedGrid[y][x].isFlagged ? 1 : -1)
     );
+    vibrate(VIBRATION_TYPE.LONG);
   };
 
   const handleReset = () => {
@@ -92,9 +94,13 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
     if (hadMine) {
       setGameStatus(GameStatus.LOST);
       pauseTimer();
+      vibrate(VIBRATION_TYPE.LONG);
     } else if (countCoveredEmptySquares(updatedGrid) === 0) {
       setGameStatus(GameStatus.WON);
       pauseTimer();
+      vibrate(VIBRATION_TYPE.LONG);
+    } else {
+      vibrate(VIBRATION_TYPE.SHORT);
     }
 
     updateGameGrid(updatedGrid);
