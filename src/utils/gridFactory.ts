@@ -1,15 +1,12 @@
-import { Cell } from "../interfaces";
+import { Difficulty, Grid, Row } from "../interfaces";
 import { traverseNeighbouringCells } from "./gridUtils";
 
-export const gridFactory = (
-  rows: number,
-  columns: number,
-  mines: number
-): Cell[][] => {
-  const grid: Cell[][] = [];
+export const gridFactory = (difficulty: Difficulty): Grid => {
+  const { rows, columns, mines } = difficulty;
+  const grid: Grid = [];
 
   for (let row = 0; row < rows; row++) {
-    const rowSquares: Cell[] = [];
+    const rowSquares: Row = [];
 
     for (let col = 0; col < columns; col++) {
       rowSquares.push({
@@ -26,7 +23,7 @@ export const gridFactory = (
   return addNeighbouringMineCount(addMines(grid, mines));
 };
 
-const addMines = (grid: Cell[][], minesToPlace: number): Cell[][] => {
+const addMines = (grid: Grid, minesToPlace: number): Grid => {
   const clonedGrid = JSON.parse(JSON.stringify(grid));
   const rows = grid.length;
   if (rows === 0) {
@@ -57,7 +54,7 @@ const addMines = (grid: Cell[][], minesToPlace: number): Cell[][] => {
   return clonedGrid;
 };
 
-const addNeighbouringMineCount = (grid: Cell[][]): Cell[][] => {
+const addNeighbouringMineCount = (grid: Grid): Grid => {
   const clonedGrid = JSON.parse(JSON.stringify(grid));
 
   for (let y = 0; y < grid.length; y++) {
@@ -75,11 +72,7 @@ const addNeighbouringMineCount = (grid: Cell[][]): Cell[][] => {
   return clonedGrid;
 };
 
-const getNeighbouringMineCount = (
-  grid: Cell[][],
-  x: number,
-  y: number
-): number => {
+const getNeighbouringMineCount = (grid: Grid, x: number, y: number): number => {
   let count = 0;
 
   traverseNeighbouringCells(grid, x, y, (cellX, cellY) => {

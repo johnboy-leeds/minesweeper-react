@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { GameStatus, Cell } from "../interfaces";
+import React, { useCallback, useEffect, useState } from "react";
+import { GameStatus, Cell, Difficulty } from "../interfaces";
 import {
   countCoveredEmptySquares,
   gridFactory,
@@ -9,15 +9,15 @@ import {
 } from "../utils";
 import { useTimer } from "use-timer";
 import GameGrid from "./GameGrid";
-import StatusBar from "./StatusBar";
+import GameHeader from "./GameHeader";
+import GameFooter from "./GameFooter";
 
 interface Props {
-  cols: number;
-  mines: number;
-  rows: number;
+  difficulty: Difficulty;
+  onChangeDifficulty(): void;
 }
 
-const Game: React.FC<Props> = ({ cols, mines, rows }) => {
+const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
   const {
     time: timeElapsed,
     start: startTimer,
@@ -28,11 +28,21 @@ const Game: React.FC<Props> = ({ cols, mines, rows }) => {
     GameStatus.NOT_STARTED
   );
   const [gameGrid, updateGameGrid] = useState<Cell[][]>([]);
-  const [unmarkedMineCount, updateUnmarkedMineCount] = useState<number>(mines);
+  const [unmarkedMineCount, updateUnmarkedMineCount] = useState<number>(
+    difficulty.mines
+  );
+
+  const resetGame = useCallback((): void => {
+    pauseTimer();
+    resetTimer();
+    setGameStatus(GameStatus.NOT_STARTED);
+    updateGameGrid(gridFactory(difficulty));
+    updateUnmarkedMineCount(difficulty.mines);
+  }, [difficulty, pauseTimer, resetTimer]);
 
   useEffect(() => {
-    updateGameGrid(gridFactory(rows, cols, mines));
-  }, [rows, cols, mines]);
+    resetGame();
+  }, [difficulty, resetGame]);
 
   const handleFlagSquare = (x: number, y: number) => {
     if (isGameOver(gameStatus)) {
@@ -53,10 +63,7 @@ const Game: React.FC<Props> = ({ cols, mines, rows }) => {
       return;
     }
 
-    pauseTimer();
-    resetTimer();
-    setGameStatus(GameStatus.NOT_STARTED);
-    updateGameGrid(gridFactory(rows, cols, mines));
+    resetGame();
   };
 
   const handleUncoverSquare = (x: number, y: number) => {
@@ -85,7 +92,7 @@ const Game: React.FC<Props> = ({ cols, mines, rows }) => {
 
   return (
     <div className="c-game-container">
-      <StatusBar
+      <GameHeader
         onReset={handleReset}
         status={gameStatus}
         timeElapsed={timeElapsed}
@@ -96,6 +103,10 @@ const Game: React.FC<Props> = ({ cols, mines, rows }) => {
         onUncoverSquare={handleUncoverSquare}
         onFlagSquare={handleFlagSquare}
         gameGrid={gameGrid}
+      />
+      <GameFooter
+        difficulty={difficulty}
+        onChangeDifficulty={onChangeDifficulty}
       />
     </div>
   );

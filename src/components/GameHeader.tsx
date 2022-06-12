@@ -7,7 +7,7 @@ interface Props {
   onReset(): void;
 }
 
-const StatusBar: React.FC<Props> = ({
+const GameHeader: React.FC<Props> = ({
   onReset,
   status,
   timeElapsed,
@@ -48,4 +48,4 @@ const StatusBar: React.FC<Props> = ({
   );
 };
 
-export default StatusBar;
+export default GameHeader;

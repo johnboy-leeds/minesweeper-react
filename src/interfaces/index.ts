@@ -22,3 +22,10 @@ export enum GameStatus {
   LOST = "lost",
   WON = "won",
 }
+
+export interface Difficulty {
+  label: string;
+  rows: number;
+  columns: number;
+  mines: number;
+}
