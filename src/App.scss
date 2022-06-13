@@ -44,6 +44,15 @@ body {
   padding: $body-padding;
 }
 
+h1 {
+  text-transform: uppercase;
+}
+h1,
+h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
 button {
   cursor: pointer;
 }
@@ -58,6 +67,23 @@ button {
   padding: $container-padding;
   width: calc(100vw - $body-padding - $body-padding);
   min-width: calc(320px - $body-padding - $body-padding);
+}
+
+.c-main-menu {
+  @media only screen and (min-width: $palm-break-point) {
+    padding: 32px 80px;
+  }
+
+  &__instructions {
+    margin-bottom: 32px;
+    padding-left: 24px;
+    li {
+      margin-bottom: 12px;
+      &:first-letter {
+        text-transform: capitalize;
+      }
+    }
+  }
 }
 
 .c-grid {
@@ -201,10 +227,6 @@ button {
 .c-difficulty-select {
   list-style: none;
   padding: 0;
-
-  &__header {
-    text-align: center;
-  }
   &__item {
     margin: 12px 0;
   }

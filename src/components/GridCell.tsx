@@ -1,6 +1,8 @@
 import React from "react";
+import useLongPress from "../hooks/useLongPress";
 import { Cell, GameStatus } from "../interfaces";
 import { getCellContent, getCellStatus } from "../utils";
+import { isTouchDevice } from "../utils/device";
 
 interface Props {
   gameStatus: GameStatus;
@@ -19,15 +21,18 @@ const GridCell: React.FC<Props> = ({ gameStatus, onFlag, onUncover, cell }) => {
     }
   };
 
+  const touchHandlers = useLongPress(onFlag, onUncover);
+  const mouseHanlders = { onClick: handleClick, onContextMenu: handleClick };
+  const eventHandlers = isTouchDevice() ? touchHandlers : mouseHanlders;
+
   return (
     <div
       className={`c-grid-cell c-grid-cell--${getCellStatus(cell, gameStatus)}`}
       data-neighbour-count={
         cell.uncovered ? cell.neighbouringMineCount : undefined
       }
-      onClick={handleClick}
-      onContextMenu={handleClick}
       role="button"
+      {...eventHandlers}
     >
       {getCellContent(cell, gameStatus)}
     </div>

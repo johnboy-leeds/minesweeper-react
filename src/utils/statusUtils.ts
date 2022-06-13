@@ -1,9 +1,14 @@
 import { GameStatus } from "../interfaces";
 import { isTouchDevice } from "./device";
 
+export const unconverActionDescription = (): string =>
+  isTouchDevice() ? "tap" : "left click";
+export const flagActionDescription = (): string =>
+  isTouchDevice() ? "long press" : "right click";
+
 export const getInstruction = (gameStatus: GameStatus) => {
-  const unconverAction = isTouchDevice() ? "tap" : "left click";
-  const flagAction = isTouchDevice() ? "long press" : "right click";
+  const unconverAction = unconverActionDescription();
+  const flagAction = flagActionDescription();
 
   let instruction = `${unconverAction} a cell to uncover it, ${flagAction} a cell to mark it with a flag`;
   if (gameStatus === GameStatus.NOT_STARTED) {
