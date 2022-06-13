@@ -71,16 +71,22 @@ button {
 
 .c-main-menu {
   @media only screen and (min-width: $palm-break-point) {
-    padding: 32px 80px;
+    padding: 32px 72px;
   }
 
   &__instructions {
+    list-style: none;
     margin-bottom: 32px;
-    padding-left: 24px;
+    padding-left: 0;
     li {
       margin-bottom: 12px;
-      &:first-letter {
-        text-transform: capitalize;
+
+      .c-main-menu__instruction-key {
+        display: inline-block;
+        margin-right: 0.5em;
+        width: 24px;
+        height: 24px;
+        text-align: center;
       }
     }
   }
@@ -100,9 +106,6 @@ button {
 
   &__instruction {
     font-size: 0.8rem;
-    &:first-letter {
-      text-transform: capitalize;
-    }
   }
 
   &__difficulty {

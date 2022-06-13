@@ -29,7 +29,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
     GameStatus.NOT_STARTED
   );
   const [gameGrid, updateGameGrid] = useState<Cell[][]>([]);
-  const [unmarkedMineCount, updateUnmarkedMineCount] = useState<number>(
+  const [unmarkedMineCount, setUnmarkedMineCount] = useState<number>(
     difficulty.mines
   );
 
@@ -44,7 +44,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
         mines: 0,
       })
     );
-    updateUnmarkedMineCount(difficulty.mines);
+    setUnmarkedMineCount(difficulty.mines);
   }, [difficulty, pauseTimer, resetTimer]);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
     }
     const updatedGrid = toggleCellFlag(gameGrid, x, y);
     updateGameGrid(updatedGrid);
-    updateUnmarkedMineCount(
+    setUnmarkedMineCount(
       unmarkedMineCount - (updatedGrid[y][x].isFlagged ? 1 : -1)
     );
     vibrate(VIBRATION_TYPES.FLAG);
@@ -97,6 +97,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
       vibrate(VIBRATION_TYPES.LOSE);
     } else if (countCoveredEmptyCells(updatedGrid) === 0) {
       setGameStatus(GameStatus.WON);
+      setUnmarkedMineCount(0);
       pauseTimer();
       vibrate(VIBRATION_TYPES.WIN);
     } else {

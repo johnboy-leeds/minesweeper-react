@@ -3,20 +3,20 @@ import { Difficulty } from "../interfaces";
 export const difficulties: Difficulty[] = [
   {
     label: "Easy",
-    rows: 6,
-    columns: 4,
-    mines: 4,
+    rows: 8,
+    columns: 8,
+    mines: 10,
   },
   {
-    label: "Medium",
-    rows: 10,
-    columns: 8,
-    mines: 12,
+    label: "Intermediate ",
+    rows: 16,
+    columns: 16,
+    mines: 40,
   },
   {
     label: "Hard",
-    rows: 14,
-    columns: 12,
-    mines: 36,
+    rows: 30,
+    columns: 16,
+    mines: 99,
   },
 ];
