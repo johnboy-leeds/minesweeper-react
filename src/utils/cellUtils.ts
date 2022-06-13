@@ -32,7 +32,7 @@ export const getCellStatus = (
     }
 
     if (cell.hasMine) {
-      return cell.uncovered ? CellStatus.EXPLODED : CellStatus.UNCOVERED;
+      return cell.uncovered ? CellStatus.EXPLODED : CellStatus.MISSED_MINE;
     }
 
     return cell.uncovered ? CellStatus.UNCOVERED : CellStatus.COVERED;

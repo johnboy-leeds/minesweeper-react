@@ -12,6 +12,7 @@ export enum CellStatus {
   EXPLODED = "exploded",
   FLAGGED = "flagged",
   FLAGGED_ERRONEOUSLY = "flagged-erroneously",
+  MISSED_MINE = "missed-mine",
   UNCOVERED = "uncovered",
   COVERED = "covered",
 }

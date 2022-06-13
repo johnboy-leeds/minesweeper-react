@@ -41,7 +41,9 @@ body {
   background: #1e4526;
   box-sizing: border-box;
   min-width: 320px;
-  padding: $body-padding;
+  @media only screen and (min-width: $palm-break-point) {
+    padding: $body-padding;
+  }
 }
 
 h1 {
@@ -58,15 +60,23 @@ button {
 }
 
 .c-game-container {
-  @extend %border-emboss;
   @extend %noselect;
   background: #f2f2f2;
   box-sizing: border-box;
   max-width: $container-max-width;
   margin: 0 auto;
   padding: $container-padding;
-  width: calc(100vw - $body-padding - $body-padding);
-  min-width: calc(320px - $body-padding - $body-padding);
+  width: 100vw;
+  min-width: 320px;
+  @media only screen and (min-width: $palm-break-point) {
+    border-top: solid $border-width $border-light;
+    border-left: solid $border-width $border-light;
+    border-bottom: solid $border-width $border-dark;
+    border-right: solid $border-width $border-dark;
+  }
+  @media only screen and (max-width: $palm-break-point) {
+    min-height: 100vh;
+  }
 }
 
 .c-main-menu {
@@ -95,6 +105,7 @@ button {
 .c-grid {
   @extend %border-inset;
   display: grid;
+  overflow-x: scroll;
 }
 
 .c-game-footer {
@@ -138,8 +149,10 @@ button {
 
   &__timer,
   &__unmarked-mines {
+    align-self: center;
     background: black;
     color: red;
+    font-family: "Courier New", monospace;
     padding: 4px 12px;
   }
 }
@@ -165,8 +178,16 @@ button {
   user-select: none;
 
   @media only screen and (max-width: $palm-break-point) {
+    .c-game-container--intermediate & {
+      font-size: 11px;
+    }
     .c-game-container--hard & {
-      font-size: 12px;
+      font-size: 11px;
+      &.c-grid-cell--flagged-erroneously,
+      &.c-grid-cell--missed-mine,
+      &.c-grid-cell--flagged {
+        font-size: 7px;
+      }
     }
 
     min-height: calc(
