@@ -16,10 +16,10 @@ export const getCellContent = (cell: Cell, gameStatus: GameStatus): string => {
   }
 
   if (!uncovered) {
-    return " ";
+    return "";
   }
 
-  return neighbouringMineCount ? `${neighbouringMineCount}` : " ";
+  return neighbouringMineCount ? `${neighbouringMineCount}` : "";
 };
 
 export const getCellStatus = (

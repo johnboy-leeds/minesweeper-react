@@ -38,18 +38,18 @@ const addMines = (
 ): Grid => {
   const clonedGrid = JSON.parse(JSON.stringify(grid));
   const rows = grid.length;
-  if (rows === 0) {
+  if (rows === 0 || minesToPlace === 0) {
     return clonedGrid;
   }
 
-  const columns = grid[0].length;
-  const cellCount = rows * columns;
+  const cellCount = grid.flat().length;
   if (cellCount <= minesToPlace) {
     throw new Error(
       `Not enough space to fit all mines. Total cells: ${cellCount} Mines Requested: ${minesToPlace}`
     );
   }
 
+  const columns = clonedGrid[0].length;
   let placedMines = 0;
   while (placedMines < minesToPlace) {
     const x = Math.floor(Math.random() * columns);

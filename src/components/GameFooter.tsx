@@ -19,12 +19,11 @@ const GameFooter: React.FC<Props> = ({
         {getInstruction(gameStatus)}
       </span>
       <div>
-        <span className="c-game-footer__difficulty">{difficulty.label}</span>
         <button
           onClick={onChangeDifficulty}
-          className="c-game-footer__change-difficulty"
+          className="c-game-footer__difficulty"
         >
-          change
+          {difficulty.label}
         </button>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { GameStatus } from "../interfaces";
-import { isTouchDevice } from "./device";
+import { isTouchDevice } from "./deviceUtils";
 
 export const unconverActionDescription = (): string =>
   isTouchDevice() ? "Tap" : "Left click";

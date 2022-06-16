@@ -1,16 +1,14 @@
 import React from "react";
-import { difficulties } from "../constants";
-import { Difficulty } from "../interfaces";
 import {
   flagActionDescription,
   unconverActionDescription,
 } from "../utils/statusUtils";
 
 interface Props {
-  onSelectDifficulty(difficulty: Difficulty): void;
+  onStart(): void;
 }
 
-const Menu: React.FC<Props> = ({ onSelectDifficulty }) => {
+const Instructions: React.FC<Props> = ({ onStart }) => {
   return (
     <div className="c-game-container">
       <div className="c-main-menu">
@@ -26,11 +24,10 @@ const Menu: React.FC<Props> = ({ onSelectDifficulty }) => {
             {`${unconverActionDescription()} a cell to uncover it.`}
           </li>
           <li>
-            <div
-              className="c-grid-cell c-main-menu__instruction-key"
-              data-neighbour-count={3}
-            >
-              3
+            <div className="c-main-menu__instruction-key">
+              <div className="c-grid-cell " data-neighbour-count={3}>
+                3
+              </div>
             </div>
             Uncovered cells display the number of adjacent mines.
           </li>
@@ -47,22 +44,12 @@ const Menu: React.FC<Props> = ({ onSelectDifficulty }) => {
             and you lose.
           </li>
         </ul>
-        <h2>Choose difficulty</h2>
-        <ul className="c-difficulty-select">
-          {difficulties.map((difficulty: Difficulty) => (
-            <li key={difficulty.label} className="c-difficulty-select__item">
-              <button
-                onClick={() => onSelectDifficulty(difficulty)}
-                className="c-difficulty-select__button"
-              >
-                {difficulty.label}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <button onClick={onStart} className="c-button">
+          Start
+        </button>
       </div>
     </div>
   );
 };
 
-export default Menu;
+export default Instructions;

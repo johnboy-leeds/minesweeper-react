@@ -11,7 +11,7 @@ import { useTimer } from "use-timer";
 import GameGrid from "./GameGrid";
 import GameHeader from "./GameHeader";
 import GameFooter from "./GameFooter";
-import { vibrate, VIBRATION_TYPES } from "../utils/device";
+import { vibrate, VIBRATION_TYPES } from "../utils/deviceUtils";
 
 interface Props {
   difficulty: Difficulty;

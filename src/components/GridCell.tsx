@@ -2,7 +2,7 @@ import React from "react";
 import useLongPress from "../hooks/useLongPress";
 import { Cell, GameStatus } from "../interfaces";
 import { getCellContent, getCellStatus } from "../utils";
-import { isTouchDevice } from "../utils/device";
+import { isTouchDevice } from "../utils/deviceUtils";
 
 interface Props {
   gameStatus: GameStatus;
