@@ -11,6 +11,7 @@ enum View {
     GAME,
 }
 
+/* istanbul ignore file */
 const App: React.FC = () => {
     const [view, setView] = useState<View>(View.INSTRUCTIONS);
     const [difficulty, setDifficulty] = useState<Difficulty>();
