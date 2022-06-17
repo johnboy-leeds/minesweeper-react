@@ -1,9 +1,15 @@
-import { useCallback, useRef, useState } from 'react';
+import {
+    useCallback,
+    useRef,
+    useState,
+    TouchEventHandler,
+    TouchEvent,
+} from 'react';
 
 export interface LongPressTouchHandlers {
-    onTouchStart: (event: TouchEvent) => void;
-    onTouchEnd: (event: TouchEvent) => void;
-    onTouchMove: (event: TouchEvent) => void;
+    onTouchStart: TouchEventHandler;
+    onTouchEnd: TouchEventHandler;
+    onTouchMove: TouchEventHandler;
 }
 
 export const LONG_PRESS_THRESHOLD = 300;
