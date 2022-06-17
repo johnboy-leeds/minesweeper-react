@@ -1,19 +1,19 @@
-import { unconverActionDescription } from "../../statusUtils";
+import { unconverActionDescription } from '../../statusUtils';
 
 const mockIsTouchDevice = jest.fn();
 
-jest.mock("../../deviceUtils", () => ({
-  isTouchDevice: () => mockIsTouchDevice(),
+jest.mock('../../deviceUtils', () => ({
+    isTouchDevice: () => mockIsTouchDevice(),
 }));
 
-describe("unconverActionDescription", () => {
-  it("touch device", () => {
-    mockIsTouchDevice.mockReturnValue(true);
-    expect(unconverActionDescription()).toEqual("Tap");
-  });
+describe('unconverActionDescription', () => {
+    it('touch device', () => {
+        mockIsTouchDevice.mockReturnValue(true);
+        expect(unconverActionDescription()).toEqual('Tap');
+    });
 
-  it("non touch device", () => {
-    mockIsTouchDevice.mockReturnValue(false);
-    expect(unconverActionDescription()).toEqual("Left click");
-  });
+    it('non touch device', () => {
+        mockIsTouchDevice.mockReturnValue(false);
+        expect(unconverActionDescription()).toEqual('Left click');
+    });
 });

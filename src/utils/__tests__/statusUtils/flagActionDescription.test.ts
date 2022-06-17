@@ -1,19 +1,19 @@
-import { flagActionDescription } from "../../statusUtils";
+import { flagActionDescription } from '../../statusUtils';
 
 const mockIsTouchDevice = jest.fn();
 
-jest.mock("../../deviceUtils", () => ({
-  isTouchDevice: () => mockIsTouchDevice(),
+jest.mock('../../deviceUtils', () => ({
+    isTouchDevice: () => mockIsTouchDevice(),
 }));
 
-describe("flagActionDescription", () => {
-  it("touch device", () => {
-    mockIsTouchDevice.mockReturnValue(true);
-    expect(flagActionDescription()).toEqual("Long press");
-  });
+describe('flagActionDescription', () => {
+    it('touch device', () => {
+        mockIsTouchDevice.mockReturnValue(true);
+        expect(flagActionDescription()).toEqual('Long press');
+    });
 
-  it("non touch device", () => {
-    mockIsTouchDevice.mockReturnValue(false);
-    expect(flagActionDescription()).toEqual("Right click");
-  });
+    it('non touch device', () => {
+        mockIsTouchDevice.mockReturnValue(false);
+        expect(flagActionDescription()).toEqual('Right click');
+    });
 });

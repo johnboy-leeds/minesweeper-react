@@ -1,33 +1,33 @@
-import React from "react";
-import { Difficulty, GameStatus } from "../interfaces";
-import { getInstruction } from "../utils/statusUtils";
+import React from 'react';
+import { Difficulty, GameStatus } from '../interfaces';
+import { getInstruction } from '../utils/statusUtils';
 
 interface Props {
-  gameStatus: GameStatus;
-  difficulty: Difficulty;
-  onChangeDifficulty(): void;
+    gameStatus: GameStatus;
+    difficulty: Difficulty;
+    onChangeDifficulty(): void;
 }
 
 const GameFooter: React.FC<Props> = ({
-  difficulty,
-  gameStatus,
-  onChangeDifficulty,
+    difficulty,
+    gameStatus,
+    onChangeDifficulty,
 }) => {
-  return (
-    <div className="c-game-footer">
-      <span className="c-game-footer__instruction">
-        {getInstruction(gameStatus)}
-      </span>
-      <div>
-        <button
-          onClick={onChangeDifficulty}
-          className="c-game-footer__difficulty"
-        >
-          {difficulty.label}
-        </button>
-      </div>
-    </div>
-  );
+    return (
+        <div className="c-game-footer">
+            <span className="c-game-footer__instruction">
+                {getInstruction(gameStatus)}
+            </span>
+            <div>
+                <button
+                    onClick={onChangeDifficulty}
+                    className="c-game-footer__difficulty"
+                >
+                    {difficulty.label}
+                </button>
+            </div>
+        </div>
+    );
 };
 
 export default GameFooter;

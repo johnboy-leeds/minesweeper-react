@@ -1,103 +1,97 @@
-import {
-  useCallback,
-  useRef,
-  useState,
-  TouchEventHandler,
-  TouchEvent,
-} from "react";
+import { useCallback, useRef, useState } from 'react';
 
-interface TouchHandlers {
-  onTouchStart: TouchEventHandler;
-  onTouchEnd: TouchEventHandler;
-  onTouchMove: TouchEventHandler;
+export interface LongPressTouchHandlers {
+    onTouchStart: (event: TouchEvent) => void;
+    onTouchEnd: (event: TouchEvent) => void;
+    onTouchMove: (event: TouchEvent) => void;
 }
 
-const delay = 300;
+export const LONG_PRESS_THRESHOLD = 300;
+export const TOUCH_MOVE_THRESHOLD = 25;
 
-const useLongPress = (
-  onLongPress: () => void,
-  onTap: () => void
-): TouchHandlers => {
-  const [longPressTriggered, setLongPressTriggered] = useState(false);
-  const timeout = useRef<NodeJS.Timeout>();
-  const target = useRef<EventTarget>();
-  const startPosition = useRef<{ x: number; y: number }>();
+export interface useLongPressOptions {
+    onLongPress: () => void;
+    onTap: () => void;
+}
 
-  const start = useCallback(
-    (event: TouchEvent) => {
-      console.log("start");
-      if (timeout.current || !event.target) {
-        return;
-      }
+const useLongPress = (options: useLongPressOptions): LongPressTouchHandlers => {
+    const { onLongPress, onTap } = options;
+    const [longPressTriggered, setLongPressTriggered] = useState(false);
+    const timeout = useRef<NodeJS.Timeout>();
+    const target = useRef<EventTarget>();
+    const startPosition = useRef<{ x: number; y: number }>();
 
-      event.target.addEventListener("touchend", preventDefault, {
-        passive: false,
-      });
-      target.current = event.target;
+    const start = useCallback(
+        (event: TouchEvent) => {
+            if (timeout.current || !event.target) {
+                return;
+            }
 
-      timeout.current = setTimeout(() => {
-        onLongPress();
-        setLongPressTriggered(true);
-      }, delay);
+            target.current = event.target;
 
-      startPosition.current = {
-        x: event.touches[0].pageX,
-        y: event.touches[0].pageY,
-      };
-    },
-    [onLongPress]
-  );
+            timeout.current = setTimeout(() => {
+                onLongPress();
+                setLongPressTriggered(true);
+            }, LONG_PRESS_THRESHOLD);
 
-  const clear = useCallback(
-    (shouldTriggerClick = true) => {
-      console.log("clear");
-      timeout.current && clearTimeout(timeout.current);
-      shouldTriggerClick && !longPressTriggered && onTap();
-      setLongPressTriggered(false);
-      if (target.current) {
-        target.current.removeEventListener("touchend", preventDefault);
-      }
+            startPosition.current = {
+                x: event.touches[0].pageX,
+                y: event.touches[0].pageY,
+            };
+        },
+        [onLongPress]
+    );
 
-      startPosition.current = undefined;
-    },
-    [onTap, longPressTriggered]
-  );
+    const clear = useCallback(
+        (shouldTriggerClick = true) => {
+            timeout.current && clearTimeout(timeout.current);
+            shouldTriggerClick && !longPressTriggered && onTap();
+            setLongPressTriggered(false);
 
-  const handleMove = useCallback(
-    (event: TouchEvent) => {
-      console.log("move");
-      const currentPosition = {
-        x: event.touches[0].pageX,
-        y: event.touches[0].pageY,
-      };
+            startPosition.current = undefined;
+        },
+        [onTap, longPressTriggered]
+    );
 
-      if (currentPosition && startPosition.current) {
-        const moveThreshold = 25;
-        const movedDistance = {
-          x: Math.abs(currentPosition.x - startPosition.current.x),
-          y: Math.abs(currentPosition.y - startPosition.current.y),
-        };
+    const handleTouchEnd = useCallback(
+        (event: TouchEvent) => {
+            event.preventDefault();
+            clear();
+        },
+        [clear]
+    );
 
-        // If moved outside move tolerance box then cancel long press
-        if (
-          movedDistance.x > moveThreshold ||
-          movedDistance.y > moveThreshold
-        ) {
-          clear();
-        }
-      }
-    },
-    [clear]
-  );
+    const handleMove = useCallback(
+        (event: TouchEvent) => {
+            const currentPosition = event.touches.length && {
+                x: event.touches[0].pageX,
+                y: event.touches[0].pageY,
+            };
 
-  return {
-    onTouchStart: (event: TouchEvent): void => start(event),
-    onTouchEnd: (): void => clear(),
-    onTouchMove: (event: TouchEvent): void => handleMove(event),
-  };
+            if (currentPosition && startPosition.current) {
+                const moveThreshold = TOUCH_MOVE_THRESHOLD;
+                const movedDistance = {
+                    x: Math.abs(currentPosition.x - startPosition.current.x),
+                    y: Math.abs(currentPosition.y - startPosition.current.y),
+                };
+
+                // If moved outside move tolerance box then cancel long press
+                if (
+                    movedDistance.x > moveThreshold ||
+                    movedDistance.y > moveThreshold
+                ) {
+                    clear(false);
+                }
+            }
+        },
+        [clear]
+    );
+
+    return {
+        onTouchStart: (event: TouchEvent): void => start(event),
+        onTouchEnd: (event: TouchEvent): void => handleTouchEnd(event),
+        onTouchMove: (event: TouchEvent): void => handleMove(event),
+    };
 };
-
-const preventDefault: EventListener = (event: Event): void =>
-  event.preventDefault();
 
 export default useLongPress;
