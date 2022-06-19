@@ -23,21 +23,25 @@ export interface useLongPressOptions {
 const useLongPress = (options: useLongPressOptions): LongPressTouchHandlers => {
     const { onLongPress, onTap } = options;
     const [longPressTriggered, setLongPressTriggered] = useState(false);
+    const [movedTooFar, setMovedTooFar] = useState(false);
     const timeout = useRef<NodeJS.Timeout>();
     const target = useRef<EventTarget>();
     const startPosition = useRef<{ x: number; y: number }>();
 
-    const start = useCallback(
+    const handleTouchStart = useCallback(
         (event: TouchEvent) => {
             if (timeout.current || !event.target) {
                 return;
             }
+
+            setMovedTooFar(false);
 
             target.current = event.target;
 
             timeout.current = setTimeout(() => {
                 onLongPress();
                 setLongPressTriggered(true);
+                timeout.current = undefined;
             }, LONG_PRESS_THRESHOLD);
 
             startPosition.current = {
@@ -51,12 +55,16 @@ const useLongPress = (options: useLongPressOptions): LongPressTouchHandlers => {
     const clear = useCallback(
         (shouldTriggerClick = true) => {
             timeout.current && clearTimeout(timeout.current);
-            shouldTriggerClick && !longPressTriggered && onTap();
+            timeout.current = undefined;
+            shouldTriggerClick &&
+                !longPressTriggered &&
+                !movedTooFar &&
+                onTap();
             setLongPressTriggered(false);
 
             startPosition.current = undefined;
         },
-        [onTap, longPressTriggered]
+        [onTap, movedTooFar, longPressTriggered]
     );
 
     const handleTouchEnd = useCallback(
@@ -86,6 +94,7 @@ const useLongPress = (options: useLongPressOptions): LongPressTouchHandlers => {
                     movedDistance.x > moveThreshold ||
                     movedDistance.y > moveThreshold
                 ) {
+                    setMovedTooFar(true);
                     clear(false);
                 }
             }
@@ -94,7 +103,7 @@ const useLongPress = (options: useLongPressOptions): LongPressTouchHandlers => {
     );
 
     return {
-        onTouchStart: (event: TouchEvent): void => start(event),
+        onTouchStart: (event: TouchEvent): void => handleTouchStart(event),
         onTouchEnd: (event: TouchEvent): void => handleTouchEnd(event),
         onTouchMove: (event: TouchEvent): void => handleMove(event),
     };

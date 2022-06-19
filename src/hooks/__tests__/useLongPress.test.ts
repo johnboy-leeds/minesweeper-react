@@ -91,14 +91,15 @@ describe('useLongPress hook', () => {
         });
         const { onTouchStart, onTouchMove } = result.current;
         onTouchStart(startEvent);
-        onTouchMove(
-            new TouchEvent('touchmove', {
-                touches: [
-                    { pageX: 0, pageY: TOUCH_MOVE_THRESHOLD * 2 } as Touch,
-                ],
-            })
-        );
-
+        act(() => {
+            onTouchMove(
+                new TouchEvent('touchmove', {
+                    touches: [
+                        { pageX: 0, pageY: TOUCH_MOVE_THRESHOLD * 2 } as Touch,
+                    ],
+                })
+            );
+        });
         act(() => {
             jest.runAllTimers();
         });
@@ -113,13 +114,15 @@ describe('useLongPress hook', () => {
         });
         const { onTouchStart, onTouchMove } = result.current;
         onTouchStart(startEvent);
-        onTouchMove(
-            new TouchEvent('touchmove', {
-                touches: [
-                    { pageX: TOUCH_MOVE_THRESHOLD * 2, pageY: 0 } as Touch,
-                ],
-            })
-        );
+        act(() => {
+            onTouchMove(
+                new TouchEvent('touchmove', {
+                    touches: [
+                        { pageX: TOUCH_MOVE_THRESHOLD * 2, pageY: 0 } as Touch,
+                    ],
+                })
+            );
+        });
         act(() => {
             jest.runAllTimers();
         });
