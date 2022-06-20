@@ -52,7 +52,7 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
     }, [difficulty, resetGame]);
 
     const handleFlagCell = (x: number, y: number) => {
-        if (gameStatus !== GameStatus.IN_PLAY) {
+        if (gameStatus !== GameStatus.IN_PLAY || (gameGrid && gameGrid[y][x].uncovered)) {
             return;
         }
 
