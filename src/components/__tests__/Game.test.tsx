@@ -19,26 +19,6 @@ jest.mock('../../utils/gridFactory', () => ({
         mockGridFactory(difficulty, firstClick),
 }));
 
-jest.mock(
-    '../GameHeader',
-    () =>
-        ({ onReset, status }: { onReset(): void; status: string }): ReactNode =>
-            <span onClick={onReset}>{status}</span>
-);
-jest.mock(
-    '../GameFooter',
-    () =>
-        ({ onChangeDifficulty }: { onChangeDifficulty(): void }): ReactNode =>
-            (
-                <span>
-                    Footer
-                    <button onClick={onChangeDifficulty}>
-                        Change difficulty
-                    </button>
-                </span>
-            )
-);
-
 describe('Game component', () => {
     beforeEach(() => {
         mockGridFactory.mockReset();
@@ -53,8 +33,8 @@ describe('Game component', () => {
             />
         );
 
-        expect(screen.getByText('not-started')).toBeInTheDocument();
-        expect(screen.getByText('Footer')).toBeInTheDocument();
+        expect(screen.getByTestId('game-status')).toBeInTheDocument();
+        expect(screen.getByTestId('change-difficulty')).toBeInTheDocument();
     });
 
     it('Sets up a game with no mines, then adds them after first click', () => {
@@ -86,9 +66,7 @@ describe('Game component', () => {
         );
 
         userEvent.click(
-            screen.getByRole('button', {
-                name: 'Change difficulty',
-            })
+            screen.getByTestId('change-difficulty')
         );
 
         expect(mockOnChangeDifficulty).toBeCalledTimes(1);
@@ -110,9 +88,7 @@ describe('Game component', () => {
 
         // hit change difficulty button
         userEvent.click(
-            screen.getByRole('button', {
-                name: 'Change difficulty',
-            })
+            screen.getByTestId('change-difficulty')
         );
 
         expect(mockConfirm).toBeCalledTimes(1);
@@ -140,9 +116,7 @@ describe('Game component', () => {
 
         // hit change difficulty button
         userEvent.click(
-            screen.getByRole('button', {
-                name: 'Change difficulty',
-            })
+            screen.getByTestId('change-difficulty')
         );
 
         expect(mockConfirm).toBeCalledTimes(1);
@@ -161,6 +135,33 @@ describe('Game component', () => {
         );
         fireEvent.contextMenu(screen.getByTestId('cell-0-0'));
         expect(screen.queryAllByText('🚩')).toHaveLength(0);
+    });
+
+    
+    it('flagging an uncovered cell does not affect remaining mine count', () => {
+        mockGridFactory.mockReturnValue(FIVE_BY_FIVE_MINED_CROSS_GRID);
+        render(
+            <Game
+                onChangeDifficulty={mockOnChangeDifficulty}
+                difficulty={{
+                    label: 'Test',
+                    rows: 5,
+                    columns: 5,
+                    mines: 5,
+                }}
+            />
+        );
+
+        // start game by clicking middle cell
+        userEvent.click(screen.getByTestId('cell-2-2'));
+
+        
+        // Header shows won status
+        const { getByText: getUnmakredMineCount } = within(screen.getByTestId('unmarked-mine-count'));
+        expect(getUnmakredMineCount('005')).toBeInTheDocument();
+
+        fireEvent.contextMenu(screen.getByTestId('cell-2-2'));
+        expect(getUnmakredMineCount('005')).toBeInTheDocument();
     });
 
     it('second right click unflags a cell', () => {
@@ -230,8 +231,9 @@ describe('Game component', () => {
             );
         });
 
-        // Mocked header shows won status
-        expect(screen.getByText('won')).toBeInTheDocument();
+        // Header shows won status
+        const { getByText } = within(screen.getByTestId('game-status'));
+        expect(getByText('😎')).toBeInTheDocument();
     });
 
     it('Can completed the mined cross grid', () => {
@@ -261,7 +263,9 @@ describe('Game component', () => {
         corners.forEach(({ x, y }) => {
             userEvent.click(screen.getByTestId(`cell-${x}-${y}`));
         });
-        expect(screen.getByText('in-play')).toBeInTheDocument();
+
+        const { getByText } = within(screen.getByTestId('game-status'));
+        expect(getByText('😃')).toBeInTheDocument();
 
         // Flag the mines
         const minedCells: GridCoords[] = [
@@ -285,8 +289,8 @@ describe('Game component', () => {
         unminedCells.forEach(({ x, y }) => {
             userEvent.click(screen.getByTestId(`cell-${x}-${y}`));
         });
-        // Mocked header shows won status
-        expect(screen.getByText('won')).toBeInTheDocument();
+        // Header shows won status
+        expect(getByText('😎')).toBeInTheDocument();
     });
 
     it('Loses when clicking a mine', () => {
@@ -308,7 +312,9 @@ describe('Game component', () => {
 
         // start game by clicking the corners
         userEvent.click(screen.getByTestId('cell-0-0'));
-        expect(screen.getByText('in-play')).toBeInTheDocument();
+
+        const { getByText: statusGetByText } = within(screen.getByTestId('game-status'));
+        expect(statusGetByText('😃')).toBeInTheDocument()
 
         const minedCells: GridCoords[] = [
             { x: 2, y: 1 },
@@ -321,7 +327,7 @@ describe('Game component', () => {
             `cell-${firstMine!.x}-${firstMine!.y}`
         );
         userEvent.click(firstMinedCell);
-        expect(screen.getByText('lost')).toBeInTheDocument();
+        expect(statusGetByText('💀')).toBeInTheDocument()
 
         const { getByText } = within(firstMinedCell);
         expect(getByText('💥')).toBeInTheDocument();
@@ -353,7 +359,9 @@ describe('Game component', () => {
         // start game, then lose on second click
         userEvent.click(screen.getByTestId('cell-0-0'));
         userEvent.click(screen.getByTestId('cell-2-1'));
-        expect(screen.getByText('lost')).toBeInTheDocument();
+
+        const { getByText } = within(screen.getByTestId('game-status'));
+        expect(getByText('💀')).toBeInTheDocument();
 
         // Check bottom right is covered before and after a click
         const bottomRight = screen.getByTestId('cell-4-4');
@@ -381,9 +389,9 @@ describe('Game component', () => {
         userEvent.click(screen.getByTestId('cell-0-0'));
 
         // hit reset button
-        const statusText = screen.getByText('in-play');
-        expect(statusText).toBeInTheDocument();
-        userEvent.click(statusText);
+        const statusButton = screen.getByTestId('game-status');
+        expect(statusButton).toBeInTheDocument();
+        userEvent.click(statusButton);
 
         expect(mockConfirm).toBeCalledTimes(1);
         expect(mockConfirm).toBeCalledWith('Are you sure you want to restart');
@@ -406,9 +414,9 @@ describe('Game component', () => {
         expect(mockGridFactory).toBeCalledTimes(2);
 
         // hit reset button
-        const statusText = screen.getByText('in-play');
-        expect(statusText).toBeInTheDocument();
-        userEvent.click(statusText);
+        const statusButton = screen.getByTestId('game-status');
+        expect(statusButton).toBeInTheDocument();
+        userEvent.click(statusButton);
 
         expect(mockConfirm).toBeCalledTimes(1);
         expect(mockGridFactory).toBeCalledTimes(2);

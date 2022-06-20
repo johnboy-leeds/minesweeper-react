@@ -20,6 +20,7 @@ const GameFooter: React.FC<Props> = ({
             </span>
             <div>
                 <button
+                    data-testid="change-difficulty"
                     onClick={onChangeDifficulty}
                     className="c-game-footer__difficulty"
                 >
