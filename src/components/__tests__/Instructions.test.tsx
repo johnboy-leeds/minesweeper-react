@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import Instructions from '../Instructions';
 
 const mockIsTouchDevice = jest.fn();
-const mockOnStart = jest.fn();
+const mockOnNext = jest.fn();
 
 jest.mock('../../utils/deviceUtils', () => ({
     isTouchDevice: () => mockIsTouchDevice(),
@@ -13,7 +13,7 @@ describe('Instructions component', () => {
     it('shows tailored instructions for touch', async () => {
         mockIsTouchDevice.mockReturnValue(true);
 
-        render(<Instructions onStart={mockOnStart} />);
+        render(<Instructions next={mockOnNext} isGameInProgress={false} />);
 
         expect(
             await screen.findByText('Tap a cell to uncover it.')
@@ -28,7 +28,7 @@ describe('Instructions component', () => {
     it('shows tailored instructions for mouse', async () => {
         mockIsTouchDevice.mockReturnValue(false);
 
-        render(<Instructions onStart={mockOnStart} />);
+        render(<Instructions next={mockOnNext} isGameInProgress={false} />);
 
         expect(
             await screen.findByText('Left click a cell to uncover it.')
@@ -41,7 +41,7 @@ describe('Instructions component', () => {
     });
 
     it('Can start the game', async () => {
-        render(<Instructions onStart={mockOnStart} />);
+        render(<Instructions next={mockOnNext} isGameInProgress={false} />);
 
         userEvent.click(
             await screen.findByRole('button', {
@@ -49,6 +49,18 @@ describe('Instructions component', () => {
             })
         );
 
-        expect(mockOnStart).toHaveBeenCalledTimes(1);
+        expect(mockOnNext).toHaveBeenCalledTimes(1);
+    });
+
+    it('Can resume the game', async () => {
+        render(<Instructions next={mockOnNext} isGameInProgress={true} />);
+
+        userEvent.click(
+            await screen.findByRole('button', {
+                name: 'Resume',
+            })
+        );
+
+        expect(mockOnNext).toHaveBeenCalledTimes(1);
     });
 });

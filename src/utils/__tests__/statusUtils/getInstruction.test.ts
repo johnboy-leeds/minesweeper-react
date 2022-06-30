@@ -26,15 +26,11 @@ describe('getInstruction', () => {
         });
 
         it('WON', () => {
-            expect(getInstruction(GameStatus.WON)).toEqual(
-                'You won! Tap the face to start a new game.'
-            );
+            expect(getInstruction(GameStatus.WON)).toEqual('You won!');
         });
 
         it('LOST', () => {
-            expect(getInstruction(GameStatus.LOST)).toEqual(
-                'You lost! Tap the skull to start a new game.'
-            );
+            expect(getInstruction(GameStatus.LOST)).toEqual('You lost!');
         });
     });
 
@@ -56,15 +52,11 @@ describe('getInstruction', () => {
         });
 
         it('WON', () => {
-            expect(getInstruction(GameStatus.WON)).toEqual(
-                'You won! Left click the face to start a new game.'
-            );
+            expect(getInstruction(GameStatus.WON)).toEqual('You won!');
         });
 
         it('LOST', () => {
-            expect(getInstruction(GameStatus.LOST)).toEqual(
-                'You lost! Left click the skull to start a new game.'
-            );
+            expect(getInstruction(GameStatus.LOST)).toEqual('You lost!');
         });
     });
 });

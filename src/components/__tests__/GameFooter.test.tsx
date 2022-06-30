@@ -34,11 +34,7 @@ describe('GameFooter component', () => {
             />
         );
 
-        userEvent.click(
-            await screen.findByRole('button', {
-                name: difficulties[0].label,
-            })
-        );
+        userEvent.click(await screen.findByTestId('settings-button'));
 
         expect(mockOnChangeDifficulty).toBeCalledTimes(1);
     });

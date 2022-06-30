@@ -5,14 +5,17 @@ import {
 } from '../utils/statusUtils';
 
 interface Props {
-    onStart(): void;
+    isGameInProgress: boolean;
+    next(): void;
 }
 
-const Instructions: React.FC<Props> = ({ onStart }) => {
+const Instructions: React.FC<Props> = ({ next, isGameInProgress }) => {
     return (
-        <div className="c-game-container">
-            <div className="c-main-menu">
+        <>
+            <div className="c-game-header">
                 <h1>Minesweeper</h1>
+            </div>
+            <div className="c-main-menu" data-testid="instructions">
                 <h2>How to play</h2>
                 <ul className="c-main-menu__instructions">
                     <li>
@@ -47,11 +50,11 @@ const Instructions: React.FC<Props> = ({ onStart }) => {
                         Hit a mine and you lose.
                     </li>
                 </ul>
-                <button onClick={onStart} className="c-button">
-                    Start
+                <button onClick={next} className="c-button">
+                    {isGameInProgress ? 'Resume' : 'Start'}
                 </button>
             </div>
-        </div>
+        </>
     );
 };
 

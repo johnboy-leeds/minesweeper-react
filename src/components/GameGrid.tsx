@@ -24,6 +24,7 @@ const GameGrid: React.FC<Props> = ({
     return (
         <div
             className={`c-grid`}
+            data-testid="game-grid"
             style={
                 {
                     gridTemplateColumns: `repeat(${cols}, 1fr)`,

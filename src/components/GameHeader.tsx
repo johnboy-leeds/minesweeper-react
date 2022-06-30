@@ -1,4 +1,5 @@
 import { GameStatus } from '../interfaces';
+import { getStatusEmoji } from '../utils/statusUtils';
 
 interface Props {
     unmarkedMineCount: number;
@@ -13,17 +14,6 @@ const GameHeader: React.FC<Props> = ({
     timeElapsed,
     unmarkedMineCount,
 }) => {
-    const getStatusEmoji = (status: GameStatus): string => {
-        switch (status) {
-            case GameStatus.WON:
-                return '😎';
-            case GameStatus.LOST:
-                return '💀';
-            default:
-                return '😃';
-        }
-    };
-
     const formatNumber = (num: number): string => {
         let padding = '';
         if (num < 10) {
@@ -37,8 +27,11 @@ const GameHeader: React.FC<Props> = ({
 
     return (
         <div className="c-game-header">
-            <div className="c-game-header__timer" data-testid="game-timer">
-                {formatNumber(timeElapsed)}
+            <div>
+                <div className="c-game-header__timer" data-testid="game-timer">
+                    {formatNumber(timeElapsed)}
+                </div>
+                <span className="c-game-header__icon">⏱</span>
             </div>
             <button
                 className="c-game-header__status"
@@ -47,11 +40,14 @@ const GameHeader: React.FC<Props> = ({
             >
                 {getStatusEmoji(status)}
             </button>
-            <div
-                className="c-game-header__unmarked-mines"
-                data-testid="unmarked-mine-count"
-            >
-                {formatNumber(unmarkedMineCount)}
+            <div>
+                <span className="c-game-header__icon">🚩</span>
+                <div
+                    className="c-game-header__unmarked-mines"
+                    data-testid="unmarked-mine-count"
+                >
+                    {formatNumber(unmarkedMineCount)}
+                </div>
             </div>
         </div>
     );
