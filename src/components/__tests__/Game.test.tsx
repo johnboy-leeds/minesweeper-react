@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { difficulties } from '../../constants';
@@ -11,7 +11,6 @@ import {
 } from '../../utils/__tests__/testGrids';
 import { traverseNeighbouringCells } from '../../utils';
 
-const mockOnChangeDifficulty = jest.fn();
 const mockGridFactory = jest.fn();
 
 jest.mock('../../utils/gridFactory', () => ({
@@ -19,31 +18,36 @@ jest.mock('../../utils/gridFactory', () => ({
         mockGridFactory(difficulty, firstClick),
 }));
 
+const startGame = async () => {
+    render(<Game />);
+    userEvent.click(
+        screen.getByRole('button', {
+            name: 'Start',
+        })
+    );
+
+    userEvent.click(
+        screen.getByRole('button', {
+            name: 'Beginner',
+        })
+    );
+};
+
 describe('Game component', () => {
     beforeEach(() => {
         mockGridFactory.mockReset();
         mockGridFactory.mockReturnValue(FIVE_BY_FIVE_EMPTY_GRID);
     });
 
-    it('Renders the header, grid and footer', () => {
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+    it('Renders the header, grid and footer once game is started', () => {
+        startGame();
 
         expect(screen.getByTestId('game-status')).toBeInTheDocument();
-        expect(screen.getByTestId('change-difficulty')).toBeInTheDocument();
+        expect(screen.getByTestId('settings-button')).toBeInTheDocument();
     });
 
     it('Sets up a game with no mines, then adds them after first click', () => {
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
 
         expect(mockGridFactory).toBeCalledTimes(1);
         expect(mockGridFactory).toBeCalledWith(
@@ -57,45 +61,48 @@ describe('Game component', () => {
         expect(mockGridFactory).toBeCalledWith(difficulties[0], { x: 2, y: 2 });
     });
 
-    it('pushes up change difficulty call', () => {
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+    it('shows instructions and return to game', () => {
+        startGame();
+        // start game by clicking the corner
+        userEvent.click(screen.getByTestId('cell-0-0'));
+
+        userEvent.click(screen.getByTestId('instructions-button'));
+        expect(screen.getByTestId('instructions')).toBeInTheDocument();
 
         userEvent.click(
-            screen.getByTestId('change-difficulty')
+            screen.getByRole('button', {
+                name: 'Resume',
+            })
         );
 
-        expect(mockOnChangeDifficulty).toBeCalledTimes(1);
+        expect(screen.getByTestId('game-grid')).toBeInTheDocument();
+    });
+
+    it('shows difficulty select', () => {
+        startGame();
+
+        userEvent.click(screen.getByTestId('settings-button'));
+
+        expect(screen.getByTestId('difficulty-select')).toBeInTheDocument();
     });
 
     it('Asks user to confirm change difficulty when game in play', () => {
         const mockConfirm = jest.fn(() => true);
         window.confirm = mockConfirm;
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
         mockGridFactory.mockReturnValue(FIVE_BY_FIVE_MINED_CROSS_GRID);
 
         // start game by clicking the corner
         userEvent.click(screen.getByTestId('cell-0-0'));
 
         // hit change difficulty button
-        userEvent.click(
-            screen.getByTestId('change-difficulty')
-        );
+        userEvent.click(screen.getByTestId('settings-button'));
 
         expect(mockConfirm).toBeCalledTimes(1);
         expect(mockConfirm).toBeCalledWith(
             'Are you sure you want to change difficulty, current progress will be lost'
         );
-        expect(mockOnChangeDifficulty).toBeCalledTimes(1);
+        expect(screen.getByTestId('difficulty-select')).toBeInTheDocument();
     });
 
     it('Does not change difficulty if user cancels', () => {
@@ -103,95 +110,72 @@ describe('Game component', () => {
         const mockConfirm = jest.fn(() => false);
         window.confirm = mockConfirm;
 
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
         mockGridFactory.mockReturnValue(FIVE_BY_FIVE_MINED_CROSS_GRID);
 
         // start game by clicking the corner
         userEvent.click(screen.getByTestId('cell-0-0'));
 
         // hit change difficulty button
-        userEvent.click(
-            screen.getByTestId('change-difficulty')
-        );
+        userEvent.click(screen.getByTestId('settings-button'));
 
         expect(mockConfirm).toBeCalledTimes(1);
         expect(mockConfirm).toBeCalledWith(
             'Are you sure you want to change difficulty, current progress will be lost'
         );
-        expect(mockOnChangeDifficulty).toBeCalledTimes(0);
+
+        expect(screen.queryByTestId('difficulty-select')).toBeNull();
     });
 
     it('cannot flag a cell before game has started', () => {
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
+        startGame();
+
+        const { queryAllByText: queryGridByText } = within(
+            screen.getByTestId('game-grid')
         );
         fireEvent.contextMenu(screen.getByTestId('cell-0-0'));
-        expect(screen.queryAllByText('🚩')).toHaveLength(0);
+        expect(queryGridByText('🚩')).toHaveLength(0);
     });
 
-    
     it('flagging an uncovered cell does not affect remaining mine count', () => {
         mockGridFactory.mockReturnValue(FIVE_BY_FIVE_MINED_CROSS_GRID);
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={{
-                    label: 'Test',
-                    rows: 5,
-                    columns: 5,
-                    mines: 5,
-                }}
-            />
-        );
+        startGame();
 
         // start game by clicking middle cell
         userEvent.click(screen.getByTestId('cell-2-2'));
 
-        
         // Header shows won status
-        const { getByText: getUnmakredMineCount } = within(screen.getByTestId('unmarked-mine-count'));
-        expect(getUnmakredMineCount('005')).toBeInTheDocument();
+        const { getByText: getUnmakredMineCount } = within(
+            screen.getByTestId('unmarked-mine-count')
+        );
+        expect(getUnmakredMineCount('002')).toBeInTheDocument();
 
         fireEvent.contextMenu(screen.getByTestId('cell-2-2'));
-        expect(getUnmakredMineCount('005')).toBeInTheDocument();
+        expect(getUnmakredMineCount('002')).toBeInTheDocument();
     });
 
     it('second right click unflags a cell', () => {
         mockGridFactory.mockReturnValue(FIVE_BY_FIVE_MINED_CROSS_GRID);
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
 
         // start game by clicking middle cell
         userEvent.click(screen.getByTestId('cell-2-2'));
 
+        const { queryAllByText: queryGridByText } = within(
+            screen.getByTestId('game-grid')
+        );
+
         // flag
         fireEvent.contextMenu(screen.getByTestId('cell-0-0'));
-        expect(screen.queryAllByText('🚩')).toHaveLength(1);
+        expect(queryGridByText('🚩')).toHaveLength(1);
 
         // unflag
         fireEvent.contextMenu(screen.getByTestId('cell-0-0'));
-        expect(screen.queryAllByText('🚩')).toHaveLength(0);
+        expect(queryGridByText('🚩')).toHaveLength(0);
     });
 
     it('Completes the mined corners grid in one click', () => {
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
 
         expect(mockGridFactory).toBeCalledTimes(1);
         expect(mockGridFactory).toBeCalledWith(
@@ -237,12 +221,7 @@ describe('Game component', () => {
     });
 
     it('Can completed the mined cross grid', () => {
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
 
         expect(mockGridFactory).toBeCalledTimes(1);
         expect(mockGridFactory).toBeCalledWith(
@@ -294,12 +273,7 @@ describe('Game component', () => {
     });
 
     it('Loses when clicking a mine', () => {
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
 
         expect(mockGridFactory).toBeCalledTimes(1);
         expect(mockGridFactory).toBeCalledWith(
@@ -313,8 +287,10 @@ describe('Game component', () => {
         // start game by clicking the corners
         userEvent.click(screen.getByTestId('cell-0-0'));
 
-        const { getByText: statusGetByText } = within(screen.getByTestId('game-status'));
-        expect(statusGetByText('😃')).toBeInTheDocument()
+        const { getByText: statusGetByText } = within(
+            screen.getByTestId('game-status')
+        );
+        expect(statusGetByText('😃')).toBeInTheDocument();
 
         const minedCells: GridCoords[] = [
             { x: 2, y: 1 },
@@ -327,7 +303,7 @@ describe('Game component', () => {
             `cell-${firstMine!.x}-${firstMine!.y}`
         );
         userEvent.click(firstMinedCell);
-        expect(statusGetByText('💀')).toBeInTheDocument()
+        expect(statusGetByText('💀')).toBeInTheDocument();
 
         const { getByText } = within(firstMinedCell);
         expect(getByText('💥')).toBeInTheDocument();
@@ -340,12 +316,7 @@ describe('Game component', () => {
     });
 
     it('Cannot uncover mines after gameover', () => {
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
 
         expect(mockGridFactory).toBeCalledTimes(1);
         expect(mockGridFactory).toBeCalledWith(
@@ -377,12 +348,7 @@ describe('Game component', () => {
     it('Asks user to confirm a reset when game in play', () => {
         const mockConfirm = jest.fn(() => true);
         window.confirm = mockConfirm;
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
         mockGridFactory.mockReturnValue(FIVE_BY_FIVE_MINED_CROSS_GRID);
 
         // start game by clicking the corner
@@ -401,12 +367,8 @@ describe('Game component', () => {
     it('Does not reset game if user cancels confirmation', () => {
         const mockConfirm = jest.fn(() => false);
         window.confirm = mockConfirm;
-        render(
-            <Game
-                onChangeDifficulty={mockOnChangeDifficulty}
-                difficulty={difficulties[0]}
-            />
-        );
+        startGame();
+
         mockGridFactory.mockReturnValue(FIVE_BY_FIVE_MINED_CROSS_GRID);
 
         // start game by clicking the corner

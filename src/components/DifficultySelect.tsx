@@ -4,19 +4,19 @@ import { Difficulty } from '../interfaces';
 
 interface Props {
     onSelectDifficulty(difficulty: Difficulty): void;
-    onShowInstructions(): void;
 }
 
-const DifficultySelect: React.FC<Props> = ({
-    onSelectDifficulty,
-    onShowInstructions,
-}) => {
+const DifficultySelect: React.FC<Props> = ({ onSelectDifficulty }) => {
     return (
-        <div className="c-game-container">
+        <>
+            <div className="c-game-header">
+                <h1>Choose difficulty</h1>
+            </div>
             <div className="c-main-menu">
-                <h1>Minesweeper</h1>
-                <h2>Choose difficulty</h2>
-                <ul className="c-difficulty-select">
+                <ul
+                    className="c-difficulty-select"
+                    data-testid="difficulty-select"
+                >
                     {difficulties.map((difficulty: Difficulty) => (
                         <li
                             key={difficulty.label}
@@ -31,12 +31,8 @@ const DifficultySelect: React.FC<Props> = ({
                         </li>
                     ))}
                 </ul>
-
-                <button onClick={onShowInstructions} className="c-button">
-                    Back to instructions
-                </button>
             </div>
-        </div>
+        </>
     );
 };
 

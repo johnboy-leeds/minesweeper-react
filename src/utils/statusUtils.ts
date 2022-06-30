@@ -16,12 +16,23 @@ export const getInstruction = (gameStatus: GameStatus) => {
     }
 
     if (gameStatus === GameStatus.WON) {
-        instruction = `You won! ${unconverAction} the face to start a new game.`;
+        instruction = `You won!`;
     }
 
     if (gameStatus === GameStatus.LOST) {
-        instruction = `You lost! ${unconverAction} the skull to start a new game.`;
+        instruction = `You lost!`;
     }
 
     return instruction;
+};
+
+export const getStatusEmoji = (status: GameStatus): string => {
+    switch (status) {
+        case GameStatus.WON:
+            return '😎';
+        case GameStatus.LOST:
+            return '💀';
+        default:
+            return '😃';
+    }
 };

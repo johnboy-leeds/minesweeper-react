@@ -3,8 +3,8 @@ import { Difficulty } from '../interfaces';
 export const difficulties: Difficulty[] = [
     {
         label: 'Beginner',
-        rows: 6,
-        columns: 4,
+        rows: 5,
+        columns: 5,
         mines: 2,
     },
     {

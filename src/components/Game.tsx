@@ -1,72 +1,65 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { GameStatus, Cell, Difficulty } from '../interfaces';
-import {
-    countCoveredEmptyCells,
-    gridFactory,
-    isGameOver,
-    toggleCellFlag,
-    uncoverCell,
-} from '../utils';
-import { useTimer } from 'use-timer';
+import React, { useEffect, useState } from 'react';
+import { GameStatus, Difficulty, Grid } from '../interfaces';
 import GameGrid from './GameGrid';
 import GameHeader from './GameHeader';
 import GameFooter from './GameFooter';
-import { vibrate, VIBRATION_TYPES } from '../utils/deviceUtils';
+import { useGameEngine } from '../hooks/useGameEngine';
+import DifficultySelect from './DifficultySelect';
+import Instructions from './Instructions';
+import { GameOver } from './GameOver';
+import { isGameOver } from '../utils';
 
-interface Props {
-    difficulty: Difficulty;
-    onChangeDifficulty(): void;
+export interface GameState {
+    grid: Grid;
+    status: GameStatus;
 }
 
-const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
-    const {
-        time: timeElapsed,
-        start: startTimer,
-        pause: pauseTimer,
-        reset: resetTimer,
-    } = useTimer();
-    const [gameStatus, setGameStatus] = useState<GameStatus>(
-        GameStatus.NOT_STARTED
-    );
-    const [gameGrid, updateGameGrid] = useState<Cell[][]>([]);
-    const [unmarkedMineCount, setUnmarkedMineCount] = useState<number>(
-        difficulty.mines
-    );
+enum View {
+    INSTRUCTIONS,
+    DIFFICULTY_SELECT,
+    GAME,
+}
 
-    const resetGame = useCallback((): void => {
-        pauseTimer();
-        resetTimer();
-        setGameStatus(GameStatus.NOT_STARTED);
-        // Game starts with no mines, we add them at the first click;
-        updateGameGrid(
-            gridFactory({
-                ...difficulty,
-                mines: 0,
-            })
-        );
-        setUnmarkedMineCount(difficulty.mines);
-    }, [difficulty, pauseTimer, resetTimer]);
+const Game: React.FC = () => {
+    const [hasStartedAGame, setHasStartedAGame] = useState<boolean>(false);
+    const [view, setView] = useState<View>(View.INSTRUCTIONS);
+    const [difficulty, setDifficulty] = useState<Difficulty>();
+
+    const {
+        status,
+        grid,
+        flagCell,
+        uncoverCell,
+        resetGame,
+        timeElapsed,
+        unmarkedMineCount,
+    } = useGameEngine(difficulty);
 
     useEffect(() => {
         resetGame();
     }, [difficulty, resetGame]);
 
-    const handleFlagCell = (x: number, y: number) => {
-        if (gameStatus !== GameStatus.IN_PLAY || (gameGrid && gameGrid[y][x].uncovered)) {
-            return;
-        }
+    const showDifficultySelect = () => {
+        setView(View.DIFFICULTY_SELECT);
+    };
 
-        const updatedGrid = toggleCellFlag(gameGrid, x, y);
-        updateGameGrid(updatedGrid);
-        setUnmarkedMineCount(
-            unmarkedMineCount - (updatedGrid[y][x].isFlagged ? 1 : -1)
-        );
-        vibrate(VIBRATION_TYPES.FLAG);
+    const onChangeDifficulty = (chosenDifficulty: Difficulty) => {
+        setHasStartedAGame(true);
+        setDifficulty(chosenDifficulty);
+        setView(View.GAME);
+    };
+
+    const resumeGame = () => {
+        setView(View.GAME);
+    };
+
+    const showInstructions = () => {
+        setView(View.INSTRUCTIONS);
     };
 
     const handleReset = () => {
         if (
-            gameStatus === GameStatus.IN_PLAY &&
+            status === GameStatus.IN_PLAY &&
             !window.confirm('Are you sure you want to restart')
         ) {
             return;
@@ -75,41 +68,9 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
         resetGame();
     };
 
-    const handleUncoverCell = (x: number, y: number) => {
-        if (isGameOver(gameStatus)) {
-            return;
-        }
-
-        let grid = gameGrid;
-        if (gameStatus === GameStatus.NOT_STARTED) {
-            // Add the mines avoiding the cell that was first clicked.
-            // this prevents the user losing on their first go which is not fun.
-            grid = gridFactory(difficulty, { x, y });
-            setGameStatus(GameStatus.IN_PLAY);
-            startTimer();
-        }
-
-        const { updatedGrid, hadMine } = uncoverCell(grid, x, y);
-
-        if (hadMine) {
-            setGameStatus(GameStatus.LOST);
-            pauseTimer();
-            vibrate(VIBRATION_TYPES.LOSE);
-        } else if (countCoveredEmptyCells(updatedGrid) === 0) {
-            setGameStatus(GameStatus.WON);
-            setUnmarkedMineCount(0);
-            pauseTimer();
-            vibrate(VIBRATION_TYPES.WIN);
-        } else {
-            vibrate(VIBRATION_TYPES.REVEAL);
-        }
-
-        updateGameGrid(updatedGrid);
-    };
-
     const handleChangeDifficulty = () => {
         if (
-            gameStatus === GameStatus.IN_PLAY &&
+            status === GameStatus.IN_PLAY &&
             !window.confirm(
                 'Are you sure you want to change difficulty, current progress will be lost'
             )
@@ -117,30 +78,64 @@ const Game: React.FC<Props> = ({ difficulty, onChangeDifficulty }) => {
             return;
         }
 
-        onChangeDifficulty();
+        showDifficultySelect();
     };
 
     return (
         <div
-            className={`c-game-container  c-game-container--${difficulty.label.toLowerCase()}`}
+            className={`c-game-container  ${
+                difficulty
+                    ? `c-game-container--${difficulty.label.toLowerCase()}`
+                    : ''
+            }`}
         >
-            <GameHeader
-                onReset={handleReset}
-                status={gameStatus}
-                timeElapsed={timeElapsed}
-                unmarkedMineCount={unmarkedMineCount}
-            />
-            <GameGrid
-                gameStatus={gameStatus}
-                onUncoverCell={handleUncoverCell}
-                onFlagCell={handleFlagCell}
-                gameGrid={gameGrid}
-            />
-            <GameFooter
-                gameStatus={gameStatus}
-                difficulty={difficulty}
-                onChangeDifficulty={handleChangeDifficulty}
-            />
+            {
+                {
+                    [View.INSTRUCTIONS]: (
+                        <Instructions
+                            next={
+                                hasStartedAGame
+                                    ? resumeGame
+                                    : showDifficultySelect
+                            }
+                            isGameInProgress={hasStartedAGame}
+                        />
+                    ),
+                    [View.DIFFICULTY_SELECT]: (
+                        <DifficultySelect
+                            onSelectDifficulty={onChangeDifficulty}
+                        />
+                    ),
+                    [View.GAME]: (
+                        <>
+                            <GameHeader
+                                onReset={handleReset}
+                                status={status}
+                                timeElapsed={timeElapsed}
+                                unmarkedMineCount={unmarkedMineCount}
+                            />
+                            <GameGrid
+                                gameStatus={status}
+                                onUncoverCell={uncoverCell}
+                                onFlagCell={flagCell}
+                                gameGrid={grid}
+                            />
+                            <GameFooter
+                                gameStatus={status}
+                                onChangeDifficulty={handleChangeDifficulty}
+                                onShowInstructions={showInstructions}
+                            />
+                            {isGameOver(status) && (
+                                <GameOver
+                                    gameStatus={status}
+                                    onReset={handleReset}
+                                    onChangeDifficulty={handleChangeDifficulty}
+                                />
+                            )}
+                        </>
+                    ),
+                }[view]
+            }
         </div>
     );
 };
