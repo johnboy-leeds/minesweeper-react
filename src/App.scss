@@ -107,6 +107,7 @@ button {
 
 .c-main-menu {
     @extend %border-inset;
+    padding: 12px;
     @media only screen and (min-width: $palm-break-point) {
         padding: 32px 72px;
     }

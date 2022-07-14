@@ -8,13 +8,25 @@
             "type": "image/x-icon"
         },
         {
-            "src": "long64.png",
+            "src": "logo512.png",
+            "type": "image/png",
+            "purpose": "any",
+            "sizes": "512x512"
+        },
+        {
+            "src": "logo144.png",
+            "type": "image/png",
+            "purpose": "any maskable",
+            "sizes": "144x144"
+        },
+        {
+            "src": "logo64.png",
             "type": "image/png",
             "sizes": "64x64"
         }
     ],
     "start_url": ".",
-    "display": "fullscreen",
+    "display": "standalone",
     "theme_color": "#000000",
     "background_color": "#f2f2f2"
 }
